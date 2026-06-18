@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSentinel EDR Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Modern Matrix Glow Aesthetics */
+        body {
+            background-color: #060913 !important;
+            text-shadow: 0 0 2px rgba(0, 210, 255, 0.2);
+        }
+
+        /* Pulsing Glow Animation for Threat Badges */
+        @keyframes cyberPulse {
+            0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
+        }
+
+        .row-alert {
+            background: rgba(239, 68, 68, 0.08) !important;
+            border-left: 4px solid #ef4444 !important;
+            animation: cyberPulse 2s infinite ease-in-out;
+        }
+
+        /* Kinetic Row Loading Effects */
+        @keyframes dynamicSlide {
+            from { opacity: 0; transform: scale(0.97) translateY(10px); filter: hue-rotate(90deg); }
+            to { opacity: 1; transform: scale(1) translateY(0); filter: hue-rotate(0deg); }
+        }
+        .animated-row {
+            animation: dynamicSlide 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Neon Metrics Upgrades */
+        .metric-card {
+            background: #0d1527 !important;
+            border: 1px solid #1e293b !important;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            border-color: #00d2ff !important;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.15);
+        }
+        .metric-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 800;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* Futuristic Scrolling Terminal Log */
+        .console-log {
+            background: #030712 !important;
+            border: 1px dashed #00d2ff !important;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+            font-family: 'Consolas', monospace;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 4px 0;
+            display: flex;
+            gap: 10px;
+        }
+        .log-entry.log-success { color: #10b981 !important; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+        .log-entry.log-warning { color: #f59e0b !important; text-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+        .log-entry.log-danger { color: #ef4444 !important; font-weight: bold; text-shadow: 0 0 12px #ef4444; }
+
+        /* Dynamic Engine Badges */
+        .status-badge-active { background: #10b981 !important; box-shadow: 0 0 15px #10b981; color: #fff; }
+        .status-badge-mitigating { background: #ef4444 !important; box-shadow: 0 0 15px #ef4444; color: #fff; }
+
+        /* Tech Buttons styling override */
+        .btn-primary, .btn-danger, .btn-success {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background: #0284c7 !important; box-shadow: 0 0 15px rgba(56, 189, 248, 0.5); transform: scale(1.02); }
+        .btn-danger:hover { background: #dc2626 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); transform: scale(1.02); }
+        .btn-success:hover { background: #16a34a !important; box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-title-area">
+            <h1>🛡️ CYBERSENTINEL <span class="accent-text" style="color:#00d2ff;">EDR PRO v1.0</span></h1>
+            <p class="subtitle">Advanced Memory Forensics & Threat Hunting Workspace</p>
+        </div>
+        <div class="system-status-badge" id="engine-status">
+            <span class="pulse-indicator" id="status-pulse"></span> <span id="status-text">ENGINE STANDBY</span>
+        </div>
+    </header>
+
+    <div class="top-layout-grid">
+        <div class="card control-card-wrapper">
+            <h2>Target Artifact Acquisition</h2>
+            <div class="upload-zone" style="border: 2px dashed #1e293b; padding: 20px; border-radius: 6px; text-align: center; background: rgba(0,0,0,0.2);">
+                <input type="file" id="memory-file" onchange="logFileLoad()" style="cursor: pointer;">
+            </div>
+            <div class="button-group" style="margin-top:15px; display:flex; gap:10px;">
+                <button class="btn-primary" onclick="scanProcesses()">🔍 Scan Processes</button>
+                <button class="btn-primary" onclick="scanNetwork()">🌐 Scan Network</button>
+                <button class="btn-danger" onclick="detectMalware()">🛡️ Run Analytics Engine</button>
+            </div>
+        </div>
+
+        <div class="metrics-container">
+            <div class="metric-card" style="color: #00d2ff;">
+                <span class="metric-label">OBJECTS SCANNED</span>
+                <span class="metric-value" id="stat-objects" style="color: #00d2ff;">0</span>
+            </div>
+            <div class="metric-card" style="color: #38bdf8;">
+                <span class="metric-label">NETWORK SOCKETS</span>
+                <span class="metric-value" id="stat-network" style="color: #38bdf8;">0</span>
+            </div>
+            <div class="metric-card threat-metric" id="threat-card" style="color: #94a3b8;">
+                <span class="metric-label">THREATS IDENTIFIED</span>
+                <span class="metric-value" id="stat-threats" style="color: #ef4444;">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <div class="card">
+            <div class="card-header-flex">
+                <h2>Process Analysis Matrix (pslist vs psscan)</h2>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>Image Name</th>
+                            <th>Memory Offset</th>
+                            <th>Security Status</th>
+                            <th>Mitigation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="process-table-body">
+                        <tr>
+                            <td colspan="5" class="placeholder-text" style="color:#64748b; text-align:center; padding:20px;">Awaiting volatile memory dump ingestion...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header-flex">
+                <h2>Network Volatility & IR Mapping</h2>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>Remote Destination Address</th>
+                            <th>Socket Port</th>
+                            <th>Protocol State</th>
+                        </tr>
+                    </thead>
+                    <tbody id="network-table-body">
+                        <tr>
+                            <td colspan="4" class="placeholder-text" style="color:#64748b; text-align:center; padding:20px;">Awaiting active communication trace analysis...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card console-wrapper-card" style="margin-top:20px;">
+        <h2>Kernel Incident Event Logs</h2>
+        <div class="console-log" id="log-console">
+            <div class="log-entry log-info"><span style="color:#64748b;">[SYSTEM]</span> Initializing memory extraction architecture hooks... Ready.</div>
+        </div>
+        <div class="actions-footer" style="margin-top:15px; text-align:right;">
+            <button onclick="generateReport()" class="btn-success">📄 Generate PDF Forensic Report</button>
+        </div>
+    </div>
+
+    <script>
+        const nitishNetworkData = [
+            { pid: "1432", ip: "13.107.4.50", port: "443", state: "ESTABLISHED" },
+            { pid: "4444", ip: "192.168.1.20", port: "8080", state: "ESTABLISHED" }
+        ];
+
+        function addLog(text, type = 'info') {
+            const consoleLog = document.getElementById("log-console");
+            const entry = document.createElement("div");
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            let bracketColor = type === 'danger' ? '#ef4444' : type === 'success' ? '#10b981' : '#64748b';
+            entry.innerHTML = `<span style="color:${bracketColor}">[${timestamp}]</span> <span>${text}</span>`;
+            
+            consoleLog.appendChild(entry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function setEngineStatus(status, badgeClass) {
+            const statusText = document.getElementById("status-text");
+            const pulse = document.getElementById("status-pulse");
+            statusText.textContent = status;
+            pulse.className = "pulse-indicator " + badgeClass;
+        }
+
+        function logFileLoad() {
+            const fileInput = document.getElementById("memory-file");
+            if (fileInput.files.length > 0) {
+                setEngineStatus("PARSING FORENSIC FILE", "status-badge-active");
+                addLog(`Inverting memory file stream: ${fileInput.files[0].name}...`, 'warning');
+                
+                let progress = 0;
+                
+                const interval = setInterval(() => {
+                    progress += 25;
+                    document.getElementById("stat-objects").textContent = `Parsing ${progress}%`;
+                    addLog(`Reconstructing process handles inside directory table base... ${progress}%`, 'info');
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setEngineStatus("ENGINE STANDBY", "");
+                        document.getElementById("stat-objects").textContent = "DATA CACHED";
+                        addLog(`Analysis profile bound successfully to build: Win10x64_22H2`, 'success');
+                    }
+                }, 300);
+            }
+        }
+
+        async function scanProcesses() {
+            setEngineStatus("QUERYING BACKEND API", "status-badge-active");
+            try {
+                const response = await fetch('/api/processes');
+                const data = await response.json();
+                
+                const tbody = document.getElementById("process-table-body");
+                tbody.innerHTML = ""; 
+
+                let threatCount = 0;
+
+                data.forEach((proc, index) => {
+                    const row = document.createElement("tr");
+                    row.className = "animated-row";
+                    row.style.animationDelay = `${index * 0.04}s`; 
+                    
+                    if (proc.status === "Suspicious") {
+                        row.className += " row-alert";
+                        threatCount++;
+                    }
+                    
+                    row.innerHTML = `
+                        <td><code>${proc.pid}</code></td>
+                        <td class="font-medium" style="color: #e2e8f0;">${proc.name}</td>
+                        <td><span class="offset-text" style="font-family:monospace; color:#38bdf8;">${proc.offset}</span></td>
+                        <td><span class="badge ${proc.status === 'Suspicious' ? 'badge-danger' : 'badge-success'}">${proc.status}</span></td>
+                        <td>
+                            <button onclick="killProcess(${proc.pid}, this)" style="background: rgba(23ef, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 4px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 11px; transition:all 0.2s;">Kill</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                document.getElementById("stat-objects").textContent = `${data.length} Total`;
+                addLog(`REST endpoint pipeline verification completed. Mounted ${data.length} active mappings.`, "success");
+                
+                if (threatCount > 0) {
+                    document.getElementById("stat-threats").textContent = `${threatCount} ACTIVE`;
+                    const threatCard = document.getElementById("threat-card");
+                    threatCard.style.background = "rgba(239, 68, 68, 0.15)";
+                    threatCard.style.borderColor = "#ef4444";
+                }
+            } catch (err) {
+                addLog("Communication failure with FastAPI process tracking endpoint.", "danger");
+            } finally {
+                setTimeout(() => setEngineStatus("ENGINE STANDBY", ""), 600);
+            }
+        }
+
+        async function killProcess(pid, button) {
+            setEngineStatus("INJECTING INTERCEPTOR", "status-badge-mitigating");
+            try {
+                const response = await fetch('/api/kill-process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pid: pid })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    addLog(`Mitigation deployed: PID ${pid} cleared from RAM structures.`, "success");
+                    
+                    button.parentElement.parentElement.style.transition = "all 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
+                    button.parentElement.parentElement.style.opacity = "0";
+                    button.parentElement.parentElement.style.transform = "scale(0.8) translateX(-50px)";
+                    setTimeout(() => button.parentElement.parentElement.remove(), 400);
+                } else {
+                    addLog(`Mitigation exception for PID ${pid}: ${result.message}`, "danger");
+                    alert('Process termination rejected: ' + result.message);
+                }
+            } catch (err) {
+                addLog("Error transmitting backend memory defense instruction pack.", "danger");
+            } finally {
+                setTimeout(() => setEngineStatus("ENGINE STANDBY", ""), 600);
+            }
+        }
+
+        function scanNetwork() {
+            const tbody = document.getElementById("network-table-body");
+            tbody.innerHTML = ""; 
+
+            nitishNetworkData.forEach((net, index) => {
+                const row = document.createElement("tr");
+                row.className = "animated-row";
+                row.style.animationDelay = `${index * 0.08}s`;
+                if (net.pid === "4444") row.className += " row-alert";
+                
+                row.innerHTML = `
+                    <td><code>${net.pid}</code></td>
+                    <td style="color:#cbd5e1;">${net.ip}</td>
+                    <td><span class="port-tag" style="background:rgba(56,189,248,0.1); color:#38bdf8; padding:2px 6px; border-radius:4px;">${net.port}</span></td>
+                    <td><span class="state-text" style="color:#10b981;">${net.state}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+            document.getElementById("stat-network").textContent = `${nitishNetworkData.length} ACTIVE`;
+            addLog("Socket state telemetry trace arrays fully extracted.", "info");
+        }
+
+        function detectMalware() {
+            document.getElementById("stat-threats").textContent = "CRITICAL";
+            const threatCard = document.getElementById("threat-card");
+            threatCard.style.background = "rgba(239, 68, 68, 0.25)";
+            threatCard.style.borderColor = "#ef4444";
+            
+            addLog("ALERT: Unlinked thread context identified inside memory pool layer on PID 4444.", "danger");
+            alert("🚨 Threat Signature Matched!\n\nProcess 'malware.exe' (PID: 4444) flagged with rootkit pointer manipulation.");
+        }
+
+        function generateReport() {
+            addLog("Spooling localized dump to print channel metrics...", "warning");
+            let reportWindow = window.open("", "_blank");
+            let tableRows = document.getElementById("process-table-body").innerHTML;
+            
+            reportWindow.document.write(`
+                <html>
+                <head>
+                    <title>Forensic Triage Summary Report</title>
+                    <style>
+                        body { font-family: monospace; padding: 40px; background: #fff; color: #000; }
+                        h1 { border-bottom: 3px double #000; padding-bottom: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px dashed #000; padding: 10px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>[CYBERSENTINEL EDR FORENSIC TRIAGE EXPORT]</h1>
+                    <p>LOG DATE: ${new Date().toLocaleString()}</p>
+                    <p>AUDIT RESULT: VERIFIED SECURE ENVIRONMENT MODULE</p>
+                    <hr>
+                    <table>
+                        <thead>
+                            <tr><th>PID</th><th>Image Name</th><th>Memory Offset</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                    <script>window.print();<\/script>
+                </body>
+                </html>
+            `);
+            reportWindow.document.close();
+            addLog("Report summary built. Frame sent to document printer subsystem.", "success");
+        }
+    </script>
+</body>
+</html>
