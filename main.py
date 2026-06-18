@@ -63,4 +63,9 @@ def kill_process(req: KillRequest):
         return {"status": "error", "message": str(e)}
 
 # Serves your frontend interface directly from the dashboard folder
-app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")
+app.mount("/static", StaticFiles(directory="."), name="static")
+from fastapi.responses import FileResponse
+
+@app.get("/")
+def home():
+    return FileResponse("index.html")
